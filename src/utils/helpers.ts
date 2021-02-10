@@ -7,6 +7,21 @@ import assets from '@balancer-labs/assets/assets/index.json';
 import config from '@/config';
 import provider from '@/utils/provider';
 
+export enum AssetType {
+    Simple,
+    UNILike,
+    EIP2612Like,
+    DAILike
+}
+export const assetTypes  = {
+    '0xCc2c421C7B77c09b0cCE50E3764CA57521396dD5':AssetType.DAILike,
+    '0x1D140A670D8aA92b227fAa477FD5E899D77D3dC2':AssetType.UNILike,
+
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F':AssetType.DAILike,
+    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48':AssetType.EIP2612Like,
+    '0xB7277a6e95992041568D9391D09d0122023778A2':AssetType.EIP2612Like,
+};
+
 export const ETH_KEY = 'ether';
 
 export function formatAddress(address: string, length = 8): string {

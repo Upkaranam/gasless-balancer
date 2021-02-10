@@ -9,9 +9,11 @@
         "bFactory": "0x9424B1412450D0f8Fc2255FAf6046b98213B76Bd",
         "bActions": "0xde4A25A0b9589689945d842c5ba0CF4f0D4eB3ac",
         "dsProxyRegistry": "0x4678f0a6958e4D2Bc4F1BAF7Bc52E8F3564f3fE4",
-        "exchangeProxy": "0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21",
+        "exchangeProxy": "0xf9f883d92d2349da98d807b84e66ca9d011cd5ed",
         "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        "multicall": "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441"
+        "multicall": "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441",
+        "forwarder":"0xa530F85085C6FE2f866E7FdB716849714a89f4CD",
+        "repayTo":"0x5FD7d6382De0D4c4A00B19Ed10c11dfD96C27340"
     },
     "connectors": {
         "injected": {},

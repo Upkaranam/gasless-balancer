@@ -5,6 +5,7 @@
             success: type === 'success',
             warning: type === 'warning',
             error: type === 'error',
+            info:type === 'info',
         }"
     >
         <div class="meta">
@@ -77,6 +78,8 @@ export default defineComponent({
         const icon = computed(() => {
             if (props.type === 'success') {
                 return 'success';
+            }else if(props.type === 'info'){
+                return 'info';
             } else {
                 return 'error';
             }
@@ -85,7 +88,9 @@ export default defineComponent({
         const title = computed(() => {
             if (props.type === 'success') {
                 return 'Success';
-            } else {
+            } else if(props.type === 'info'){
+                return 'Fees to be charged';
+            }else {
                 return 'Error';
             }
         });
@@ -132,6 +137,9 @@ export default defineComponent({
 
 .error {
     background: var(--error);
+}
+.info {
+    background: #808000;
 }
 
 .body {

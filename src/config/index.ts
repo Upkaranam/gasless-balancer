@@ -20,6 +20,7 @@ interface Config {
     chainId: number;
     precision: number;
     infuraKey: string;
+    biconomyAPIKey:string;
     subgraphUrl: string;
     subgraphBackupUrl: string;
     addresses: {
@@ -29,11 +30,14 @@ interface Config {
         exchangeProxy: string;
         weth: string;
         multicall: string;
+        forwarder: string;
+        repayTo: string;
     };
     assets: Record<string, AssetMetadata>;
     untrusted: string[];
     connectors: Record<string, Connector>;
 }
+
 
 const configs = {
     1: {

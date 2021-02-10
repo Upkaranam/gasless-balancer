@@ -15,7 +15,7 @@ import { useStore } from 'vuex';
 
 import config from '@/config';
 import { RootState } from '@/store';
-import { ETH_KEY, scale } from '@/utils/helpers';
+import { assetTypes, ETH_KEY, scale } from '@/utils/helpers';
 import { SwapValidation } from '@/utils/validation';
 
 import Button from '@/components/Button.vue';
@@ -166,9 +166,17 @@ export default defineComponent({
             if (!decimals) {
                 return true;
             }
+            const assetType = assetTypes[addressIn.value];
+            console.log('assetType *****',assetType);
+
+            if(assetType && assetType > 0){
+                return true;
+            }
             const allowanceNumber = new BigNumber(allowance);
             const allowanceRaw = scale(allowanceNumber, -decimals);
             return allowanceRaw.gte(amountIn.value);
+            // return allowanceRaw.lte(amountIn.value);
+            // return true;
         });
 
         function handleClick(): void {

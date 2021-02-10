@@ -3,6 +3,8 @@ import { sleep } from '@/utils/helpers';
 import { ActionContext } from 'vuex';
 
 export const NOTIFICATION_DURATION = 20 * 1000;
+export const NOTIFICATION_DURATION_INFO  = 100 * 1000;
+
 
 export interface UIState {
     modal: {
@@ -25,7 +27,7 @@ export interface UIState {
 
 interface Notification {
     text: string;
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'info';
     link: string;
 }
 
@@ -81,8 +83,14 @@ const actions = {
     },
     notify: async ({ commit }: ActionContext<UIState, RootState>, notification: Notification): Promise<void> => {
         commit('addNotification', notification);
-        await sleep(NOTIFICATION_DURATION);
+        if(notification.type !== 'info'){
+            await sleep(NOTIFICATION_DURATION);
+        }
+        else{
+            await sleep(NOTIFICATION_DURATION_INFO);
+        }      
         commit('removeTopNotification');
+        
     },
 };
 

@@ -45,6 +45,7 @@ export default defineComponent({
                 'success': 'Receipt',
                 'warning': 'Help',
                 'error': 'Details',
+                'info':'Why',
             };
             return textMap[props.type];
         });

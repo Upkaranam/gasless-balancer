@@ -30,6 +30,7 @@
                 @unlock="unlock"
                 @swap="swap"
             />
+           
             <Routing
                 :address-in="assetInAddressInput"
                 :amount-in="assetInAmountInput"
@@ -40,11 +41,13 @@
                 class="routing"
             />
         </div>
+       
         <ModalAssetSelector
             :open="isModalOpen"
             :hidden="[assetInAddressInput, assetOutAddressInput]"
             @select="handleAssetSelect"
         />
+       
     </div>
 </template>
 
@@ -61,7 +64,7 @@ import { Swap, Pool } from '@balancer-labs/sor/dist/types';
 
 import config from '@/config';
 import provider from '@/utils/provider';
-import { ETH_KEY, scale, isAddress, getEtherscanLink } from '@/utils/helpers';
+import { ETH_KEY, scale, isAddress, getEtherscanLink, assetTypes } from '@/utils/helpers';
 import { ValidationError, SwapValidation, validateNumberInput } from '@/utils/validation';
 import Storage from '@/utils/storage';
 import Swapper from '@/web3/swapper';
@@ -234,6 +237,8 @@ export default defineComponent({
 
         async function swap(): Promise<void> {
             const metadata = store.getters['assets/metadata'];
+            const { allowances } = store.state.account;
+            const exchangeProxyAddress = config.addresses.exchangeProxy;
             transactionPending.value = true;
             const assetInAddress = assetInAddressInput.value;
             const assetOutAddress = assetOutAddressInput.value;
@@ -243,6 +248,13 @@ export default defineComponent({
             const assetInAmount = scale(assetInAmountNumber, assetInDecimals);
             const slippageBufferRate = Storage.getSlippage();
             const provider = await store.getters['account/provider'];
+
+            const allowance = allowances[exchangeProxyAddress][assetInAddress];
+            const allowanceNumber = new BigNumber(allowance);
+            const allowanceRaw = scale(allowanceNumber, -assetInDecimals);
+            // console.log('allowanceRaw ***',allowanceRaw.toString())
+            const isAllowanceRequired   = allowanceRaw.lte(assetInAmountNumber);
+            // console.log('isAllowanceRequired ****',isAllowanceRequired,assetInAmountNumber.toString())
             if (isWrapPair(assetInAddress, assetOutAddress)) {
                 if (assetInAddress === ETH_KEY) {
                     const tx = await Helper.wrap(provider, assetInAmount);
@@ -258,23 +270,28 @@ export default defineComponent({
             }
             const assetInSymbol = metadata[assetInAddress].symbol;
             const assetOutSymbol = metadata[assetOutAddress].symbol;
+            const assetType = assetTypes[assetInAddress];
             const text = `Swap ${assetInSymbol} for ${assetOutSymbol}`;
+
             if (isExactIn.value) {
                 const assetOutAmountNumber = new BigNumber(assetOutAmountInput.value);
                 const assetOutAmount = scale(assetOutAmountNumber, assetOutDecimals);
                 const minAmount = assetOutAmount.div(1 + slippageBufferRate).integerValue(BigNumber.ROUND_DOWN);
-                const tx = await Swapper.swapIn(provider, swaps.value, assetInAddress, assetOutAddress, assetInAmount, minAmount);
+                // console.log(assetInAddress)
+               
+                // console.log('assetType ****8',assetType);
+                const tx = await Swapper.swapIn(provider, swaps.value, assetInAddress, assetOutAddress, assetInAmount, minAmount,assetType,isAllowanceRequired);
                 await handleTransaction(tx, text);
             } else {
                 const assetInAmountMax = assetInAmount.times(1 + slippageBufferRate).integerValue(BigNumber.ROUND_DOWN);
-                const tx = await Swapper.swapOut(provider, swaps.value, assetInAddress, assetOutAddress, assetInAmountMax);
+                const tx = await Swapper.swapOut(provider, swaps.value, assetInAddress, assetOutAddress, assetInAmountMax,assetType,isAllowanceRequired);
                 await handleTransaction(tx, text);
             }
-            store.dispatch('account/fetchAssets', [ assetInAddress, assetOutAddress ]);
-            if (sor) {
-                sor.fetchPools();
-                onAmountChange(activeInput.value);
-            }
+            // store.dispatch('account/fetchAssets', [ assetInAddress, assetOutAddress ]);
+            // if (sor) {
+            //     sor.fetchPools();
+            //     onAmountChange(activeInput.value);
+            // }
         }
 
         async function initSor(): Promise<void> {
@@ -405,24 +422,40 @@ export default defineComponent({
         }
 
         async function handleTransaction(transaction: any, text: string): Promise<void> {
-            if (transaction.code) {
+            console.log('transaction',transaction);
+            //here the transaction is actually response object from biconomy
+            //https://docs.biconomy.io/api/native-meta-tx
+            if (transaction.status && transaction.status !== 200) {
                 transactionPending.value = false;
-                if (transaction.code === ErrorCode.UNPREDICTABLE_GAS_LIMIT) {
-                    store.dispatch('ui/notify', {
-                        text: `${text} failed`,
-                        type: 'warning',
-                        link: 'https://help.balancer.finance',
-                    });
-                }
+               
+                store.dispatch('ui/notify', {
+                    text: `${text} failed`,
+                    type: 'warning',
+                    link: 'https://t.me/upkaranam',
+                });
+                // }
                 return;
             }
-
+            else if (transaction.code && transaction.code === ErrorCode.UNPREDICTABLE_GAS_LIMIT) {
+                transactionPending.value = false;
+               
+                store.dispatch('ui/notify', {
+                    text: `${text} failed`,
+                    type: 'warning',
+                    link: 'https://t.me/upkaranam',
+                });
+                return;
+            }
+            transaction.hash = transaction.hash ? transaction.hash : transaction.data.txHash;
             store.dispatch('account/saveTransaction', {
                 transaction,
                 text,
             });
-
-            const transactionReceipt = await provider.waitForTransaction(transaction.hash, 1);
+            //two kind of transactions can be here 1. biconomy api response or normal transaction
+            const txHash = transaction.status ? transaction.data.txHash : transaction.hash;
+            console.log('txHash',txHash);
+            const transactionReceipt = await provider.waitForTransaction(txHash, 1);
+            console.log('txReceipt',transactionReceipt);
             transactionPending.value = false;
             store.dispatch('account/saveMinedTransaction', {
                 receipt: transactionReceipt,

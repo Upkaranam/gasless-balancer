@@ -638,6 +638,25 @@
             "symbol": "ZRX",
             "decimals": 18,
             "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xE41d2489571d322189246DaFA5ebDe1F4699F498/logo.png"
+        },
+        {
+            "address": "0x1d140a670d8aa92b227faa477fd5e899d77d3dc2",
+            "chainId": 42,
+            "name": "Uniswap",
+            "symbol": "UNI-V2",
+            "decimals": 18,
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1d140a670d8aa92b227faa477fd5e899d77d3dc2/logo.png",
+            "tokenType":2
+        },
+        {
+            "address": "0xcc2c421c7b77c09b0cce50e3764ca57521396dd5",
+            "chainId": 42,
+            "name": "DAI stablecoin ",
+            "symbol": "DAI",
+            "decimals": 18,
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1d140a670d8aa92b227faa477fd5e899d77d3dc2/logo.png",
+            "tokenType":3
         }
+
     ]
 }
